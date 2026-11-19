@@ -108,26 +108,31 @@ function showImage(round, i) {
 
 // --- scale bar (only shown when the CZI recorded a pixel size)
 const NICE = [1, 2, 5, 10, 20, 25, 50, 100, 200, 250, 500, 1000, 2000, 5000, 10000];
+const sbEl = $("scalebar"), sbBar = $("sbbar"), sbText = $("sbtext");  // keep references: full page detaches them
 function updateScale() {
-  const sb = $("scalebar");
+  try { drawScale(); } catch (e) { /* never let the scale bar interrupt zooming */ }
+}
+function drawScale() {
+  const sb = sbEl;
   if (!current || !current.umPerPixel || !viewer.world.getItemAt(0)) { sb.style.display = "none"; return; }
   const item = viewer.world.getItemAt(0);
   const zoom = item.viewportToImageZoom(viewer.viewport.getZoom(true)); // screen px per image px
   const umPerScreenPx = current.umPerPixel / zoom;
   const target = 120 * umPerScreenPx;
   const um = NICE.reduce((best, n) => (n <= target ? n : best), NICE[0]);
-  $("sbbar").style.width = (um / umPerScreenPx) + "px";
-  $("sbtext").textContent = um >= 1000 ? `${um / 1000} mm` : `${um} µm`;
+  sbBar.style.width = (um / umPerScreenPx) + "px";
+  sbText.textContent = um >= 1000 ? `${um / 1000} mm` : `${um} µm`;
   sb.style.display = "block";
 }
 viewer.addHandler("animation", updateScale);
 viewer.addHandler("open", updateScale);
 viewer.addHandler("resize", updateScale);
 viewer.addHandler("open-failed", () => {
-  $("msg").textContent = "This image could not be loaded.";
-  $("msg").style.display = "flex";
+  msgEl.textContent = "This image could not be loaded.";
+  msgEl.style.display = "flex";
 });
-setTimeout(() => $("hint").style.opacity = 0, 5000);
+const hintEl = $("hint"), msgEl = $("msg");
+setTimeout(() => hintEl.style.opacity = 0, 5000);
 
 $("round").onchange = e => showRound(e.target.value, 0);
 
