@@ -1,0 +1,31 @@
+{
+  "title": "Digital Microscopy Proficiency Testing",
+  "rounds": [
+    {
+      "id": "test-round",
+      "name": "Test round",
+      "images": [
+        {
+          "label": "Test slide - area 1",
+          "dzi": "rounds/test-round/image1.dzi",
+          "width": 11697,
+          "height": 13090,
+          "tileSize": 512,
+          "overlap": 0,
+          "format": "jpg",
+          "umPerPixel": 0.4411014302713876
+        },
+        {
+          "label": "Test slide - area 2",
+          "dzi": "rounds/test-round/image2.dzi",
+          "width": 11694,
+          "height": 13088,
+          "tileSize": 512,
+          "overlap": 0,
+          "format": "jpg",
+          "umPerPixel": 0.4411014302713876
+        }
+      ]
+    }
+  ]
+}

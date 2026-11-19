@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="icon" href="data:,">
+<title>Digital Microscopy Proficiency Testing</title>
+<script src="openseadragon/openseadragon.min.js"></script>
+<style>
+  :root { --bar: #1f2933; --fg: #f5f7fa; --muted: #9aa5b1; --accent: #3e8ed0; }
+  * { box-sizing: border-box; }
+  html, body { margin: 0; height: 100%; font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif; background: #111; }
+  header { height: 56px; background: var(--bar); color: var(--fg); display: flex; align-items: center;
+           gap: 16px; padding: 0 16px; flex-wrap: nowrap; overflow-x: auto; }
+  h1 { font-size: 16px; font-weight: 600; margin: 0; white-space: nowrap; }
+  .spacer { flex: 1; }
+  label { font-size: 13px; color: var(--muted); white-space: nowrap; }
+  select { font: inherit; font-size: 14px; padding: 6px 8px; border-radius: 6px; border: 1px solid #3e4c59;
+           background: #323f4b; color: var(--fg); }
+  .tabs { display: flex; gap: 6px; }
+  .tabs button { font: inherit; font-size: 14px; padding: 6px 14px; border-radius: 6px; cursor: pointer;
+                 border: 1px solid #3e4c59; background: #323f4b; color: var(--fg); white-space: nowrap; }
+  .tabs button.active { background: var(--accent); border-color: var(--accent); }
+  #viewer { position: absolute; top: 56px; left: 0; right: 0; bottom: 0; background: #111; }
+  #msg { position: absolute; inset: 56px 0 0 0; display: flex; align-items: center; justify-content: center;
+         color: var(--muted); font-size: 15px; text-align: center; padding: 24px; pointer-events: none; }
+  #scalebar { position: absolute; left: 16px; bottom: 16px; color: #fff; font-size: 12px; text-align: center;
+              text-shadow: 0 0 3px #000, 0 0 2px #000; pointer-events: none; display: none; z-index: 5; }
+  #scalebar .bar { height: 5px; background: #fff; box-shadow: 0 0 3px #000; margin-top: 3px; }
+  #hint { position: absolute; right: 16px; top: 68px; color: #ddd; background: rgba(0,0,0,.55); font-size: 12px;
+          padding: 6px 10px; border-radius: 6px; pointer-events: none; transition: opacity 1s; z-index: 5; }
+</style>
+</head>
+<body>
+<header>
+  <h1 id="title">Digital Microscopy Proficiency Testing</h1>
+  <div class="spacer"></div>
+  <label for="round">Round</label>
+  <select id="round"></select>
+  <div class="tabs" id="tabs"></div>
+</header>
+<div id="viewer"></div>
+<div id="msg">Loading…</div>
+<div id="scalebar"><div id="sbtext"></div><div class="bar" id="sbbar"></div></div>
+<div id="hint">Scroll or pinch to zoom · drag to move</div>
+
+<script>
+const $ = id => document.getElementById(id);
+let manifest = null, current = null;
+
+const viewer = OpenSeadragon({
+  id: "viewer",
+  prefixUrl: "openseadragon/images/",
+  showNavigator: true,
+  navigatorPosition: "BOTTOM_RIGHT",
+  showRotationControl: false,
+  maxZoomPixelRatio: 4,          // allow zooming a little past native resolution
+  visibilityRatio: 0.5,
+  constrainDuringPan: true,
+  animationTime: 0.6,
+  gestureSettingsMouse: { clickToZoom: false, dblClickToZoom: true },
+});
+
+function tileSource(img) {
+  // Inline Deep Zoom descriptor, so no extra request for the .dzi file is needed
+  return { Image: {
+    xmlns: "http://schemas.microsoft.com/deepzoom/2008",
+    Url: img.dzi.replace(/\.dzi$/, "_files/"),
+    Format: img.format || "jpg",
+    Overlap: String(img.overlap ?? 0),
+    TileSize: String(img.tileSize || 512),
+    Size: { Width: String(img.width), Height: String(img.height) }
+  }};
+}
+
+function showRound(roundId, imgIndex = 0) {
+  const round = manifest.rounds.find(r => r.id === roundId) || manifest.rounds[0];
+  $("round").value = round.id;
+  const tabs = $("tabs");
+  tabs.innerHTML = "";
+  round.images.forEach((img, i) => {
+    const b = document.createElement("button");
+    b.textContent = img.label || `Image ${i + 1}`;
+    b.onclick = () => showImage(round, i);
+    tabs.appendChild(b);
+  });
+  showImage(round, Math.min(imgIndex, round.images.length - 1));
+}
+
+function showImage(round, i) {
+  current = round.images[i];
+  [...$("tabs").children].forEach((b, j) => b.classList.toggle("active", j === i));
+  $("msg").style.display = "none";
+  viewer.open(tileSource(current));
+  history.replaceState(null, "", `#${encodeURIComponent(round.id)}/${i + 1}`);
+}
+
+// --- scale bar (only shown when the CZI recorded a pixel size)
+const NICE = [1, 2, 5, 10, 20, 25, 50, 100, 200, 250, 500, 1000, 2000, 5000, 10000];
+function updateScale() {
+  const sb = $("scalebar");
+  if (!current || !current.umPerPixel || !viewer.world.getItemAt(0)) { sb.style.display = "none"; return; }
+  const item = viewer.world.getItemAt(0);
+  const zoom = item.viewportToImageZoom(viewer.viewport.getZoom(true)); // screen px per image px
+  const umPerScreenPx = current.umPerPixel / zoom;
+  const target = 120 * umPerScreenPx;
+  const um = NICE.reduce((best, n) => (n <= target ? n : best), NICE[0]);
+  $("sbbar").style.width = (um / umPerScreenPx) + "px";
+  $("sbtext").textContent = um >= 1000 ? `${um / 1000} mm` : `${um} µm`;
+  sb.style.display = "block";
+}
+viewer.addHandler("animation", updateScale);
+viewer.addHandler("open", updateScale);
+viewer.addHandler("resize", updateScale);
+viewer.addHandler("open-failed", () => {
+  $("msg").textContent = "This image could not be loaded.";
+  $("msg").style.display = "flex";
+});
+setTimeout(() => $("hint").style.opacity = 0, 5000);
+
+$("round").onchange = e => showRound(e.target.value, 0);
+
+fetch("manifest.json", { cache: "no-cache" })
+  .then(r => r.json())
+  .then(m => {
+    manifest = m;
+    if (m.title) { $("title").textContent = m.title; document.title = m.title; }
+    if (!m.rounds || !m.rounds.length) { $("msg").textContent = "No rounds have been published yet."; return; }
+    for (const r of m.rounds) $("round").add(new Option(r.name, r.id));
+    const [rid, idx] = decodeURIComponent(location.hash.slice(1)).split("/");
+    showRound(rid, (parseInt(idx) || 1) - 1);
+  })
+  .catch(() => { $("msg").textContent = "Could not load manifest.json."; });
+</script>
+</body>
+</html>
