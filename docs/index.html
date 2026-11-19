@@ -38,6 +38,8 @@
   <label for="round">Round</label>
   <select id="round"></select>
   <div class="tabs" id="tabs"></div>
+  <label for="imgsel" id="imglabel" style="display:none">Image</label>
+  <select id="imgsel" style="display:none"></select>
 </header>
 <div id="viewer"></div>
 <div id="msg">Loading…</div>
@@ -76,20 +78,27 @@ function tileSource(img) {
 function showRound(roundId, imgIndex = 0) {
   const round = manifest.rounds.find(r => r.id === roundId) || manifest.rounds[0];
   $("round").value = round.id;
-  const tabs = $("tabs");
-  tabs.innerHTML = "";
+  const tabs = $("tabs"), sel = $("imgsel");
+  const many = round.images.length > 4;   // many images: use a drop-down instead of buttons
+  tabs.innerHTML = ""; sel.innerHTML = "";
+  tabs.style.display = many ? "none" : "flex";
+  sel.style.display = $("imglabel").style.display = many ? "" : "none";
   round.images.forEach((img, i) => {
+    const name = img.label || `Image ${i + 1}`;
+    sel.add(new Option(name, i));
     const b = document.createElement("button");
-    b.textContent = img.label || `Image ${i + 1}`;
+    b.textContent = name;
     b.onclick = () => showImage(round, i);
     tabs.appendChild(b);
   });
+  sel.onchange = () => showImage(round, +sel.value);
   showImage(round, Math.min(imgIndex, round.images.length - 1));
 }
 
 function showImage(round, i) {
   current = round.images[i];
   [...$("tabs").children].forEach((b, j) => b.classList.toggle("active", j === i));
+  $("imgsel").value = i;
   $("msg").style.display = "none";
   viewer.open(tileSource(current));
   history.replaceState(null, "", `#${encodeURIComponent(round.id)}/${i + 1}`);

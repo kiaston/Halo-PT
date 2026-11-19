@@ -8,6 +8,9 @@ Usage
   python add_round.py --round "2026 Round 2" --czi slideA.czi --label "Specimen A" \
                                             --czi slideB.czi --label "Specimen B"
 
+  # or convert every .czi in a folder (file names become the labels, sorted 1, 2, ... 10)
+  python add_round.py --round "Baseline" --folder ~/Desktop/czi
+
   # list rounds / remove a round
   python add_round.py --list
   python add_round.py --remove "2026 Round 2"
@@ -270,6 +273,7 @@ def main():
     ap.add_argument("--round", help='round name, e.g. "2026 Round 2"')
     ap.add_argument("--czi", action="append", default=[], help="path to a .czi file (repeat)")
     ap.add_argument("--label", action="append", default=[], help="label for the matching --czi (repeat)")
+    ap.add_argument("--folder", help="convert every .czi in this folder; file names become the labels")
     ap.add_argument("--z", type=int, default=0, help="Z-plane to use for z-stacks (default 0)")
     ap.add_argument("--gamma", type=float, default=1.0,
                     help="brightness curve: below 1 lightens midtones, above 1 darkens (default 1 = unchanged)")
@@ -298,6 +302,17 @@ def main():
         save_manifest(m)
         print(f"Removed {a.remove}")
         return
+    if a.folder:
+        folder = os.path.expanduser(a.folder)
+        if not os.path.isdir(folder):
+            sys.exit(f"Folder not found: {folder}")
+        natural = lambda n: [int(t) if t.isdigit() else t.lower() for t in re.split(r"(\d+)", n)]
+        found = sorted((f for f in os.listdir(folder) if f.lower().endswith(".czi") and not f.startswith(".")),
+                       key=natural)
+        if not found:
+            sys.exit(f"No .czi files in {folder}")
+        a.czi += [os.path.join(folder, f) for f in found]
+        print(f"Found {len(found)} files: " + ", ".join(found))
     if not a.round or not a.czi:
         if not a.title:
             ap.print_help()
@@ -306,7 +321,8 @@ def main():
     for p in a.czi:
         if not os.path.isfile(p):
             sys.exit(f"File not found: {p}")
-    labels = a.label + [os.path.splitext(os.path.basename(p))[0] for p in a.czi[len(a.label):]]
+    labels = a.label + [os.path.splitext(os.path.basename(p))[0].replace("_", " ")
+                        for p in a.czi[len(a.label):]]
 
     rid = slugify(a.round)
     rdir = os.path.join(SITE, "rounds", rid)

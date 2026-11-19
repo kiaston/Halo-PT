@@ -2,12 +2,12 @@
   "title": "Digital Microscopy Proficiency Testing",
   "rounds": [
     {
-      "id": "test-round",
-      "name": "Test round",
+      "id": "baseline",
+      "name": "Baseline",
       "images": [
         {
-          "label": "Test slide - area 1",
-          "dzi": "rounds/test-round/image1.dzi",
+          "label": "Slide 1 - area 1",
+          "dzi": "rounds/baseline/image1.dzi",
           "width": 11697,
           "height": 13090,
           "tileSize": 512,
@@ -16,10 +16,190 @@
           "umPerPixel": 0.4411014302713876
         },
         {
-          "label": "Test slide - area 2",
-          "dzi": "rounds/test-round/image2.dzi",
+          "label": "Slide 1 - area 2",
+          "dzi": "rounds/baseline/image2.dzi",
           "width": 11694,
           "height": 13088,
+          "tileSize": 512,
+          "overlap": 0,
+          "format": "jpg",
+          "umPerPixel": 0.4411014302713876
+        },
+        {
+          "label": "Slide 2 - area 1",
+          "dzi": "rounds/baseline/image3.dzi",
+          "width": 11698,
+          "height": 12007,
+          "tileSize": 512,
+          "overlap": 0,
+          "format": "jpg",
+          "umPerPixel": 0.4411014302713876
+        },
+        {
+          "label": "Slide 2 - area 2",
+          "dzi": "rounds/baseline/image4.dzi",
+          "width": 13139,
+          "height": 12006,
+          "tileSize": 512,
+          "overlap": 0,
+          "format": "jpg",
+          "umPerPixel": 0.4411014302713876
+        },
+        {
+          "label": "Slide 3 - area 1",
+          "dzi": "rounds/baseline/image5.dzi",
+          "width": 13140,
+          "height": 13089,
+          "tileSize": 512,
+          "overlap": 0,
+          "format": "jpg",
+          "umPerPixel": 0.4411014302713876
+        },
+        {
+          "label": "Slide 3 - area 2",
+          "dzi": "rounds/baseline/image6.dzi",
+          "width": 13142,
+          "height": 12000,
+          "tileSize": 512,
+          "overlap": 0,
+          "format": "jpg",
+          "umPerPixel": 0.4411014302713876
+        },
+        {
+          "label": "Slide 4 - area 1",
+          "dzi": "rounds/baseline/image7.dzi",
+          "width": 13141,
+          "height": 13089,
+          "tileSize": 512,
+          "overlap": 0,
+          "format": "jpg",
+          "umPerPixel": 0.4411014302713876
+        },
+        {
+          "label": "Slide 4 - area 2",
+          "dzi": "rounds/baseline/image8.dzi",
+          "width": 13140,
+          "height": 13097,
+          "tileSize": 512,
+          "overlap": 0,
+          "format": "jpg",
+          "umPerPixel": 0.4411014302713876
+        },
+        {
+          "label": "Slide 5 - area 1",
+          "dzi": "rounds/baseline/image9.dzi",
+          "width": 13130,
+          "height": 12002,
+          "tileSize": 512,
+          "overlap": 0,
+          "format": "jpg",
+          "umPerPixel": 0.4411014302713876
+        },
+        {
+          "label": "Slide 5 - area 2",
+          "dzi": "rounds/baseline/image10.dzi",
+          "width": 13143,
+          "height": 13088,
+          "tileSize": 512,
+          "overlap": 0,
+          "format": "jpg",
+          "umPerPixel": 0.4411014302713876
+        },
+        {
+          "label": "Slide 6 - area 1",
+          "dzi": "rounds/baseline/image11.dzi",
+          "width": 13129,
+          "height": 12003,
+          "tileSize": 512,
+          "overlap": 0,
+          "format": "jpg",
+          "umPerPixel": 0.4411014302713876
+        },
+        {
+          "label": "Slide 6 - area 2",
+          "dzi": "rounds/baseline/image12.dzi",
+          "width": 13142,
+          "height": 12003,
+          "tileSize": 512,
+          "overlap": 0,
+          "format": "jpg",
+          "umPerPixel": 0.4411014302713876
+        },
+        {
+          "label": "Slide 7 - area 1",
+          "dzi": "rounds/baseline/image13.dzi",
+          "width": 13129,
+          "height": 12000,
+          "tileSize": 512,
+          "overlap": 0,
+          "format": "jpg",
+          "umPerPixel": 0.4411014302713876
+        },
+        {
+          "label": "Slide 7 - area 2",
+          "dzi": "rounds/baseline/image14.dzi",
+          "width": 11699,
+          "height": 13088,
+          "tileSize": 512,
+          "overlap": 0,
+          "format": "jpg",
+          "umPerPixel": 0.4411014302713876
+        },
+        {
+          "label": "Slide 8 - area 1",
+          "dzi": "rounds/baseline/image15.dzi",
+          "width": 13137,
+          "height": 12010,
+          "tileSize": 512,
+          "overlap": 0,
+          "format": "jpg",
+          "umPerPixel": 0.4411014302713876
+        },
+        {
+          "label": "Slide 8 - area 2",
+          "dzi": "rounds/baseline/image16.dzi",
+          "width": 13131,
+          "height": 12000,
+          "tileSize": 512,
+          "overlap": 0,
+          "format": "jpg",
+          "umPerPixel": 0.4411014302713876
+        },
+        {
+          "label": "Slide 9 - area 1",
+          "dzi": "rounds/baseline/image17.dzi",
+          "width": 13140,
+          "height": 13091,
+          "tileSize": 512,
+          "overlap": 0,
+          "format": "jpg",
+          "umPerPixel": 0.4411014302713876
+        },
+        {
+          "label": "Slide 9 - area 2",
+          "dzi": "rounds/baseline/image18.dzi",
+          "width": 11695,
+          "height": 13088,
+          "tileSize": 512,
+          "overlap": 0,
+          "format": "jpg",
+          "umPerPixel": 0.4411014302713876
+        },
+        {
+          "label": "Slide 10 - area 1",
+          "dzi": "rounds/baseline/image19.dzi",
+          "width": 13143,
+          "height": 13093,
+          "tileSize": 512,
+          "overlap": 0,
+          "format": "jpg",
+          "umPerPixel": 0.4411014302713876
+        },
+        {
+          "label": "Slide 10 - area 2",
+          "dzi": "rounds/baseline/image20.dzi",
+          "width": 13140,
+          "height": 12005,
           "tileSize": 512,
           "overlap": 0,
           "format": "jpg",
