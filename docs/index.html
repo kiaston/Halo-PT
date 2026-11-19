@@ -23,12 +23,15 @@
   .tabs button.active { background: var(--accent); border-color: var(--accent); }
   #stage { position: absolute; top: 56px; left: 0; right: 0; bottom: 0; }
   #viewer { width: 100%; height: 100%; background: #111; }
+  /* full screen: the browser enlarges #stage in place; nothing on the page is moved */
+  #stage:fullscreen, #stage.pseudo-full { position: fixed; inset: 0; width: 100%; height: 100%; z-index: 100; background: #111; }
+  #stage:-webkit-full-screen { position: fixed; inset: 0; width: 100%; height: 100%; background: #111; }
   #msg { position: absolute; inset: 56px 0 0 0; display: flex; align-items: center; justify-content: center;
          color: var(--muted); font-size: 15px; text-align: center; padding: 24px; pointer-events: none; }
   #scalebar { position: absolute; left: 16px; bottom: 16px; color: #fff; font-size: 12px; text-align: center;
               text-shadow: 0 0 3px #000, 0 0 2px #000; pointer-events: none; display: none; z-index: 5; }
   #scalebar .bar { height: 5px; background: #fff; box-shadow: 0 0 3px #000; margin-top: 3px; }
-  #hint { position: absolute; right: 16px; top: 68px; color: #ddd; background: rgba(0,0,0,.55); font-size: 12px;
+  #hint { position: absolute; right: 16px; top: 12px; color: #ddd; background: rgba(0,0,0,.55); font-size: 12px;
           padding: 6px 10px; border-radius: 6px; pointer-events: none; transition: opacity 1s; z-index: 5; }
 </style>
 </head>
@@ -42,10 +45,12 @@
   <label for="imgsel" id="imglabel" style="display:none">Image</label>
   <select id="imgsel" style="display:none"></select>
 </header>
-<div id="stage"><div id="viewer"></div></div>
+<div id="stage">
+  <div id="viewer"></div>
+  <div id="scalebar"><div id="sbtext"></div><div class="bar" id="sbbar"></div></div>
+  <div id="hint">Scroll or pinch to zoom · drag to move</div>
+</div>
 <div id="msg">Loading…</div>
-<div id="scalebar"><div id="sbtext"></div><div class="bar" id="sbbar"></div></div>
-<div id="hint">Scroll or pinch to zoom · drag to move</div>
 
 <script>
 const $ = id => document.getElementById(id);
@@ -53,8 +58,9 @@ let manifest = null, current = null;
 
 const viewer = OpenSeadragon({
   id: "viewer",
-  drawer: "canvas",              // the WebGL drawer goes blank when toggling full page
+  drawer: "canvas",
   prefixUrl: "openseadragon/images/",
+  showFullPageControl: false,     // replaced by our own full-screen button below
   showNavigator: true,
   navigatorPosition: "BOTTOM_RIGHT",
   showRotationControl: false,
@@ -64,6 +70,29 @@ const viewer = OpenSeadragon({
   animationTime: 0.6,
   gestureSettingsMouse: { clickToZoom: false, dblClickToZoom: true },
 });
+
+// --- full screen: enlarge the viewer area in place (OpenSeadragon's own full-page mode
+//     rearranges the page, which froze the viewer in some browsers)
+const stage = $("stage");
+const fsElement = () => document.fullscreenElement || document.webkitFullscreenElement;
+function toggleFullscreen() {
+  if (fsElement()) {
+    (document.exitFullscreen || document.webkitExitFullscreen).call(document);
+  } else if (stage.requestFullscreen || stage.webkitRequestFullscreen) {
+    (stage.requestFullscreen || stage.webkitRequestFullscreen).call(stage);
+  } else {
+    stage.classList.toggle("pseudo-full");   // e.g. iPhone, which has no full-screen API for pages
+  }
+}
+const IMG = "openseadragon/images/";
+const fsButton = new OpenSeadragon.Button({
+  tooltip: "Full screen",
+  srcRest: IMG + "fullpage_rest.png", srcGroup: IMG + "fullpage_grouphover.png",
+  srcHover: IMG + "fullpage_hover.png", srcDown: IMG + "fullpage_pressed.png",
+  onClick: toggleFullscreen,
+});
+viewer.buttonGroup.buttons.push(fsButton);
+viewer.buttonGroup.element.appendChild(fsButton.element);
 
 function tileSource(img) {
   // Inline Deep Zoom descriptor, so no extra request for the .dzi file is needed
